@@ -116,9 +116,6 @@ def signup_process():
         return render_template("signup.html", error="Association ID is already registered!")
         
     try:
-        # Generate random verification token for approvals
-        token = f"TK-{random.randint(1000, 9999)}"
-        
         # Insert credentials with PENDING status (securely hashed password)
         hashed_password = generate_password_hash(password)
         insert_user = """
@@ -136,7 +133,7 @@ def signup_process():
         cursor.execute(insert_profile, (new_user_id, full_name, house_name_number, street_address.strip(), city.strip(), pincode, phone_number))
         conn.commit()
         
-        flash(f"Registration Successful! Verification Token: {token}. Pending Admin approval.", "success")
+        flash("Registration Successful! Pending administrator approval.", "success")
         
     except Exception:
         conn.rollback()
@@ -505,9 +502,12 @@ def admin_approve_resident(user_id):
     
     try:
         # Update resident status to APPROVED
-        cursor.execute("UPDATE users SET status = 'APPROVED' WHERE id = %s AND role = 'resident';", (user_id,))
-        conn.commit()
-        flash("Resident registration approved successfully!", "success")
+        cursor.execute("UPDATE users SET status = 'APPROVED' WHERE id = %s AND role = 'resident' AND status = 'PENDING';", (user_id,))
+        if cursor.rowcount == 0:
+            flash("Error: Pending resident record not found or already approved.", "error")
+        else:
+            conn.commit()
+            flash("Resident registration approved successfully!", "success")
     except Exception:
         conn.rollback()
         flash("A database error occurred during approval verification.", "error")
@@ -696,9 +696,12 @@ def resolve_complaint(complaint_id):
     cursor = conn.cursor()
     
     try:
-        cursor.execute("UPDATE complaints SET status = 'Resolved' WHERE id = %s;", (complaint_id,))
-        conn.commit()
-        flash("Complaint marked as resolved.", "success")
+        cursor.execute("UPDATE complaints SET status = 'Resolved' WHERE id = %s AND status = 'Pending';", (complaint_id,))
+        if cursor.rowcount == 0:
+            flash("Error: Complaint record not found or already resolved.", "error")
+        else:
+            conn.commit()
+            flash("Complaint marked as resolved.", "success")
     except Exception:
         conn.rollback()
         flash("An error occurred while resolving the complaint.", "error")
@@ -718,9 +721,12 @@ def pay_fine(fine_id):
     cursor = conn.cursor()
     
     try:
-        cursor.execute("UPDATE fines SET payment_status = 'Paid' WHERE id = %s;", (fine_id,))
-        conn.commit()
-        flash("Fine marked as paid successfully.", "success")
+        cursor.execute("UPDATE fines SET payment_status = 'Paid' WHERE id = %s AND payment_status = 'Pending';", (fine_id,))
+        if cursor.rowcount == 0:
+            flash("Error: Fine record not found or already paid.", "error")
+        else:
+            conn.commit()
+            flash("Fine marked as paid successfully.", "success")
     except Exception:
         conn.rollback()
         flash("An error occurred while settling the fine.", "error")
