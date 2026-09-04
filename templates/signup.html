@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Co-Lend | Resident Sign Up</title>
+    <script src="{{ url_for('static', filename='js/tailwind.js') }}"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "secondary": "#006c49",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary": "#000000",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "tertiary-container": "#0b1c30",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2d3133",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "outline-variant": "#c6c6cd",
+                        "outline": "#76777d",
+                        "on-error-container": "#93000a",
+                        "on-background": "#191c1e",
+                        "inverse-primary": "#bec6e0",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-container": "#6cf8bb",
+                        "surface": "#f7f9fb",
+                        "on-secondary-container": "#00714d",
+                        "tertiary-fixed": "#d3e4fe",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed-dim": "#4edea3",
+                        "primary-fixed-dim": "#bec6e0",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-tertiary-container": "#75859d",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "tertiary": "#000000",
+                        "surface-container": "#eceef0",
+                        "primary-container": "#131b2e",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-container-high": "#e6e8ea",
+                        "background": "#f7f9fb",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-secondary-fixed-variant": "#005236"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "md": "16px",
+                        "margin-desktop": "40px",
+                        "xl": "48px",
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "xs": "4px",
+                        "sm": "8px"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .input-focus-ring:focus { box-shadow: 0 0 0 2px #000000; }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col">
+
+<header class="w-full top-0 sticky z-50 bg-surface-container-lowest border-b border-outline-variant shadow-sm">
+    <div class="flex justify-between items-center h-20 px-margin-desktop w-full max-w-container-max mx-auto">
+        <div class="flex items-center gap-md">
+            <span class="font-display-lg text-display-lg font-bold text-primary">Co-Lend</span>
+        </div>
+        <div class="hidden md:flex items-center gap-lg">
+            <div class="flex items-center gap-sm cursor-pointer text-on-surface-variant hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">help_outline</span>
+                <span class="font-body-md text-body-md">Support</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="flex-grow flex items-center justify-center relative overflow-hidden px-margin-mobile md:px-lg py-xl">
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-40">
+        <div class="absolute top-[-10%] left-[-5%] w-[40%] h-[60%] bg-secondary-fixed opacity-20 blur-[120px] rounded-full"></div>
+        <div class="absolute bottom-[-10%] right-[-5%] w-[35%] h-[50%] bg-primary-fixed opacity-15 blur-[100px] rounded-full"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-[480px]">
+        <div class="glass-card rounded-xl shadow-md border border-outline-variant overflow-hidden">
+            <div class="bg-surface-container p-xl text-center">
+                <div class="flex justify-center mb-md">
+                    <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">person_add</span>
+                    </div>
+                </div>
+                <h1 class="font-headline-md text-headline-md text-on-surface mb-xs">Create Account</h1>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Register as a resident using your official Association ID.</p>
+            </div>
+
+            <form action="/signup" method="POST" class="p-xl space-y-lg">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                {% if error %}
+                <div class="bg-red-50 text-red-700 p-4 rounded-xl border border-red-200 text-sm font-semibold flex items-center gap-2 mb-2">
+                    <span class="material-symbols-outlined text-red-500 text-lg">error</span>
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="association-id">Association ID</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">badge</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="association-id" name="association_id" placeholder="e.g. COL-12345" type="text" required/>
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="password">Create Password</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">lock</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="password" name="password" placeholder="••••••••" type="password" required/>
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="full-name">Full Name</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">person</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="full-name" name="full_name" placeholder="e.g. John Doe" type="text" required/>
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="house-name-number">House Name / Flat No.</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">home</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="house-name-number" name="house_name_number" placeholder="e.g. Villa-4B or Flat 203" type="text" required/>
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="street-address">Street / Locality</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">location_on</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="street-address" name="street_address" placeholder="e.g. Greenwood Avenue" type="text" required/>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-sm">
+                        <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="city">City</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                                <span class="material-symbols-outlined text-md">location_city</span>
+                            </div>
+                            <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="city" name="city" placeholder="e.g. Ernakulam" type="text" required/>
+                        </div>
+                    </div>
+                    <div class="space-y-sm">
+                        <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="pincode">Pincode</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                                <span class="material-symbols-outlined text-md">tag</span>
+                            </div>
+                            <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="pincode" name="pincode" placeholder="e.g. 682024" type="text" required/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-sm">
+                    <label class="font-label-md text-label-md text-on-surface-variant block ml-1 uppercase" for="phone-number">Phone Number</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 pl-md flex items-center pointer-events-none text-outline">
+                            <span class="material-symbols-outlined text-md">phone</span>
+                        </div>
+                        <input class="w-full pl-xl pr-md py-md bg-surface-container-low border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:border-primary input-focus-ring transition-all duration-200" id="phone-number" name="phone_number" placeholder="e.g. 9876543210" type="tel" required/>
+                    </div>
+                </div>
+
+                <button class="w-full bg-primary text-on-primary py-md px-lg rounded-lg font-title-lg text-title-lg font-semibold hover:opacity-90 active:scale-95 transition-all duration-150 shadow-sm flex items-center justify-center gap-sm" type="submit">
+                    Sign Up
+                    <span class="material-symbols-outlined text-white">person_add</span>
+                </button>
+            </form>
+
+            <div class="px-xl pb-xl pt-0 text-center">
+                <div class="border-t border-outline-variant pt-lg">
+                    <p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Already have an account? <a class="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline ml-xs" href="/">Sign In</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="w-full mt-xl bg-surface-container-highest border-t border-outline-variant">
+    <div class="flex flex-col md:flex-row justify-between items-center py-lg px-margin-desktop w-full max-w-container-max mx-auto gap-md md:gap-0">
+        <div class="flex flex-col items-center md:items-start">
+            <span class="font-title-lg text-title-lg font-bold text-primary">Co-Lend</span>
+            <span class="font-body-sm text-body-sm text-on-surface-variant mt-1 text-center md:text-left">© 2026 Co-Lend Smart Resident Ledger. All Rights Reserved.</span>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

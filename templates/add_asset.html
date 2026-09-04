@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Co-Lend Admin | Asset Registry</title>
+    <!-- Tailwind CSS with forms and container queries -->
+    <script src="{{ url_for('static', filename='js/tailwind.js') }}"></script>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-slate-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Brand & Navigation -->
+            <div class="flex items-center gap-10">
+                <span class="text-2xl font-extrabold text-slate-900 tracking-tight">Co-Lend</span>
+                <div class="flex items-center gap-6">
+                    <button id="tab-assets" onclick="switchTab('assets')" class="text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-7 pt-7 focus:outline-none transition-all">Assets</button>
+                    <button id="tab-approvals" onclick="switchTab('approvals')" class="text-sm font-medium text-slate-500 hover:text-slate-900 pb-7 pt-7 focus:outline-none transition-all">Approvals</button>
+                    <button id="tab-ledger" onclick="switchTab('ledger')" class="text-sm font-medium text-slate-500 hover:text-slate-900 pb-7 pt-7 focus:outline-none transition-all">Ledger</button>
+                </div>
+            </div>
+            <!-- Profile Info / Status -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 font-semibold text-sm">
+                        SK
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <p class="text-xs font-semibold text-slate-900">Safeer</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-wider">Central Heights Admin</p>
+                    </div>
+                </div>
+                <a href="/profile" class="px-3 py-1.5 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs">manage_accounts</span>
+                    <span>Profile</span>
+                </a>
+                <a href="/logout" class="px-3 py-1.5 border border-slate-200 hover:border-slate-350 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-xs">logout</span>
+                    <span>Sign Out</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-6 py-10 w-full flex-grow">
+        
+        <!-- Header Section -->
+        <div class="mb-8">
+            <h1 id="header-title" class="text-3xl font-extrabold text-slate-900 tracking-tight">Asset Registry</h1>
+            <p id="header-desc" class="text-slate-500 mt-2 text-sm">Manage shared community resources, register new assets, and view daily rent structures.</p>
+        </div>
+
+
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="relative {% if category == 'error' %}bg-rose-50 text-rose-800 border-rose-200{% elif category == 'warning' %}bg-amber-50 text-amber-800 border-amber-200{% else %}bg-emerald-50 text-emerald-800 border-emerald-200{% endif %} p-4 rounded-2xl border text-sm font-semibold flex items-center justify-between gap-2 mb-6 shadow-sm transition-all" id="flash-alert-{{ loop.index }}">
+                  <div class="flex items-center gap-2">
+                      <span class="material-symbols-outlined">{% if category == 'error' %}error{% elif category == 'warning' %}warning{% else %}check_circle{% endif %}</span>
+                      <span>{{ message }}</span>
+                  </div>
+                  <button onclick="document.getElementById('flash-alert-{{ loop.index }}').remove()" class="text-slate-400 hover:text-slate-600 flex items-center focus:outline-none">
+                      <span class="material-symbols-outlined text-sm">close</span>
+                  </button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- 1. Assets View Container (Default View) -->
+        <div id="view-assets" class="transition-all duration-300">
+            <!-- Grid Layout for Assets Tab -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- Left Column: Add New Asset (Width: 1/3) -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                        <!-- Form Title -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="material-symbols-outlined text-indigo-600 bg-indigo-50 p-2.5 rounded-xl">add_box</span>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Add New Asset</h2>
+                                <p class="text-xs text-slate-400">Register a new shared asset</p>
+                            </div>
+                        </div>
+
+                        <!-- Add Asset Form -->
+                        <form action="/admin" method="POST" class="space-y-5">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <!-- Asset Name -->
+                            <div>
+                                <label for="asset-name" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Asset Name</label>
+                                <input type="text" id="asset-name" name="asset_name" required placeholder="e.g. Lawn Mower, Folding Chair" 
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50 transition-all"/>
+                            </div>
+
+                            <!-- Asset Category -->
+                            <div>
+                                <label for="asset-category" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Asset Category</label>
+                                <select id="asset-category" name="asset_category" required
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm text-slate-800 bg-slate-50/50 transition-all">
+                                    <option value="Electronics">Electronics (e.g., Generators, Sound Systems)</option>
+                                    <option value="Furniture">Furniture (e.g., Plastic Chairs, Folding Tables)</option>
+                                    <option value="Maintenance Tools">Maintenance Tools (e.g., Lawn Mowers, Pressure Washers)</option>
+                                    <option value="Event Utilities">Event Utilities (e.g., Tents, Stage Decor)</option>
+                                    <option value="Sports & Recreation">Sports & Recreation (e.g., Cricket Kits, Footballs)</option>
+                                    <option value="Other">Other (For any miscellaneous items)</option>
+                                </select>
+                            </div>
+
+                            <!-- Grid layout for Quantity and Rent -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- Total Quantity -->
+                                <div>
+                                    <label for="total-quantity" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Total Qty</label>
+                                    <input type="number" id="total-quantity" name="total_qty" required min="1" placeholder="0" 
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50 transition-all"/>
+                                </div>
+                                
+                                <!-- Daily Rent -->
+                                <div>
+                                    <label for="daily-rent" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Daily Rent (₹)</label>
+                                    <input type="number" id="daily-rent" name="daily_rent" required min="0" step="0.01" placeholder="0.00" 
+                                        class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm placeholder-slate-400 bg-slate-50/50 transition-all"/>
+                                </div>
+                            </div>
+
+                            <!-- Save Button -->
+                            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 mt-2">
+                                <span class="material-symbols-outlined text-sm">save</span>
+                                <span>Add Asset</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Column: Recent Registry Entries (Width: 2/3) -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+                        
+                        <!-- Table Header -->
+                        <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/55">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Recent Registry Entries</h2>
+                                <p class="text-xs text-slate-400">Overview of all active items and rent structures</p>
+                            </div>
+                            <span class="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full">
+                                Total Assets: {{ assets|length }}
+                            </span>
+                        </div>
+
+                        <!-- Table (Responsive Container) -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 text-xs font-bold text-slate-450 uppercase tracking-wider bg-slate-50/20">
+                                        <th class="px-6 py-4 text-slate-500">Asset Name</th>
+                                        <th class="px-6 py-4 text-slate-500">Category</th>
+                                        <th class="px-6 py-4 text-center text-slate-500">Total Qty</th>
+                                        <th class="px-6 py-4 text-center text-slate-500">Daily Fee</th>
+                                        <th class="px-6 py-4 text-center text-slate-500">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for asset in assets %}
+                                    <tr class="hover:bg-slate-50/60 transition-colors text-sm text-slate-700">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-3">
+                                                <span class="material-symbols-outlined text-slate-400 bg-slate-50 p-2 rounded-xl text-lg">inventory_2</span>
+                                                <span class="font-semibold text-slate-900">{{ asset.asset_name }}</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg">
+                                                {{ asset.asset_category }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-center font-medium">{{ asset.total_qty }}</td>
+                                        <td class="px-6 py-4 text-center font-semibold text-slate-900">₹{{ asset.daily_rent }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex justify-center">
+                                                <form action="/admin/delete_asset/{{ asset.id }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this asset?');">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-sm border border-rose-200/50">
+                                                        <span class="material-symbols-outlined text-xs">delete</span>
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 text-sm">
+                                            <span class="material-symbols-outlined text-4xl block mb-2 text-slate-300">inventory_2</span>
+                                            No assets registered in the database yet.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div> <!-- End of view-assets -->
+
+        <!-- 2. Approvals View Container -->
+        <div id="view-approvals" class="hidden transition-all duration-300">
+            <div class="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="material-symbols-outlined text-indigo-600 bg-indigo-50 p-2.5 rounded-xl">pending_actions</span>
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900">Pending Approvals</h2>
+                        <p class="text-xs text-slate-400">Approve self-registered residents to grant community lending privileges</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    {% for resident in pending_residents %}
+                    <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-bold text-slate-850">{{ resident.full_name }}</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Association ID: <span class="font-semibold text-slate-750">{{ resident.association_id }}</span></p>
+                                <p class="text-xs text-slate-500 mt-1">Address: <span class="font-semibold text-slate-700">{{ resident.house_name_number }}, {{ resident.street_address }}, {{ resident.city }} - {{ resident.pincode }}</span></p>
+                                <p class="text-xs text-slate-500">Phone: <span class="font-semibold text-slate-700">{{ resident.phone_number }}</span></p>
+                            </div>
+                        </div>
+                        <form action="/admin/approve_resident/{{ resident.user_id }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-4 rounded-lg transition-all shadow-sm flex items-center justify-center gap-1.5 self-start">
+                                <span class="material-symbols-outlined text-xs">check_circle</span>
+                                <span>Approve Access</span>
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-12 text-slate-400 text-sm">
+                        <span class="material-symbols-outlined text-4xl block mb-2 text-slate-300">verified_user</span>
+                        <p class="font-medium text-slate-550">No pending approvals.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div> <!-- End of view-approvals -->
+
+        <!-- 3. Ledger View Container -->
+        <div id="view-ledger" class="hidden transition-all duration-300 space-y-8">
+            
+            <!-- Currently Leased Assets Widget -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 overflow-hidden">
+                <div class="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <span class="material-symbols-outlined text-indigo-600 bg-indigo-50 p-2 rounded-xl text-lg">bookmark</span>
+                    <h3 class="text-base font-bold text-slate-900">Currently Leased Assets</h3>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200/60 bg-white">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="px-4 py-3">Asset</th>
+                                <th class="px-4 py-3">Resident</th>
+                                <th class="px-4 py-3">Contact</th>
+                                <th class="px-4 py-3 text-center">Qty</th>
+                                <th class="px-4 py-3 text-right">Rental Cost</th>
+                                <th class="px-4 py-3 text-center">Due Date</th>
+                                <th class="px-4 py-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            {% for item in leased_assets %}
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3 font-semibold text-slate-900">{{ item.asset_name }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="font-medium text-slate-800">{{ item.resident_name }}</div>
+                                    <div class="text-[10px] text-slate-400">House: {{ item.house_name_number }}</div>
+                                </td>
+                                <td class="px-4 py-3 text-slate-500">{{ item.phone_number }}</td>
+                                <td class="px-4 py-3 text-center font-bold">{{ item.quantity }}</td>
+                                <td class="px-4 py-3 text-right">
+                                    <div class="font-semibold text-slate-900">₹{{ item.total_rental_price }}</div>
+                                    <div class="text-[10px] {% if item.payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
+                                        {{ item.payment_status }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center font-semibold text-indigo-600">
+                                    {{ item.due_date }}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    <form action="/admin/return_asset/{{ item.booking_id }}" method="POST" onsubmit="return confirm('Are you sure you want to mark this asset as returned?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="px-3 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg transition-all inline-flex items-center gap-1 border border-emerald-200">
+                                            <span class="material-symbols-outlined text-[12px]">keyboard_return</span>
+                                            <span>Return</span>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                                    No assets currently leased out.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Completed & Overdue Ledger Log Widget -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 overflow-hidden">
+                <div class="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <span class="material-symbols-outlined text-emerald-600 bg-emerald-50 p-2 rounded-xl text-lg">history</span>
+                    <h3 class="text-base font-bold text-slate-900">Completed & Overdue Ledger Log</h3>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200/60 bg-white">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="px-4 py-3">Resident</th>
+                                <th class="px-4 py-3">Asset</th>
+                                <th class="px-4 py-3 text-center">Due Date</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                                <th class="px-4 py-3 text-right">Rental Cost</th>
+                                <th class="px-4 py-3 text-right">Fine Charged</th>
+                                <th class="px-4 py-3 text-center">Payment Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            {% for item in completed_ledger %}
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3 font-semibold text-slate-900">{{ item.resident_name }}</td>
+                                <td class="px-4 py-3 font-medium">{{ item.asset_name }}</td>
+                                <td class="px-4 py-3 text-center text-slate-500">
+                                    {{ item.due_date or item.return_date }}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if item.fine_amount and item.fine_amount > 0 %}
+                                    <span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full">Overdue</span>
+                                    {% else %}
+                                    <span class="px-2 py-0.5 bg-emerald-55 text-emerald-800 text-[10px] font-bold rounded-full">On Time</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <div class="font-semibold text-slate-900">₹{{ item.total_rental_price }}</div>
+                                    <div class="text-[10px] {% if item.booking_payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
+                                        {{ item.booking_payment_status }}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-right font-semibold text-rose-600">
+                                    {% if item.fine_amount %}
+                                    ₹{{ item.fine_amount }}
+                                    {% else %}
+                                    ₹0.00
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if item.fine_amount %}
+                                        {% if item.payment_status == 'Pending' %}
+                                        <form action="/admin/pay_fine/{{ item.fine_id }}" method="POST" class="inline-block">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="px-2 py-0.5 bg-rose-105 hover:bg-rose-200 text-rose-700 text-[10px] font-bold rounded-lg transition-all border border-rose-200 shadow-sm">
+                                                Settle Fine
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="px-2 py-0.5 bg-emerald-55 text-emerald-800 text-[10px] font-bold rounded-full">Paid</span>
+                                        {% endif %}
+                                    {% else %}
+                                    <span class="text-slate-400">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="px-4 py-8 text-center text-slate-400">
+                                    No historical returned entries found.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Resident Complaints & Faulty Reports Widget -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 overflow-hidden">
+                <div class="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+                    <span class="material-symbols-outlined text-rose-600 bg-rose-50 p-2 rounded-xl text-lg">report_problem</span>
+                    <h3 class="text-base font-bold text-slate-900">Resident Complaints & Faulty Reports</h3>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200/60 bg-white">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100 font-bold text-slate-500 uppercase tracking-wider">
+                                <th class="px-4 py-3">Resident</th>
+                                <th class="px-4 py-3">Asset</th>
+                                <th class="px-4 py-3">Description</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                                <th class="px-4 py-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                            {% for item in complaints %}
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <div class="font-semibold text-slate-900">{{ item.resident_name }}</div>
+                                    <div class="text-[10px] text-slate-400">House: {{ item.house_name_number }}</div>
+                                </td>
+                                <td class="px-4 py-3 font-medium">{{ item.asset_name }}</td>
+                                <td class="px-4 py-3 text-slate-500 max-w-xs truncate" title="{{ item.description }}">{{ item.description }}</td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if item.status == 'Pending' %}
+                                    <span class="px-2.5 py-0.5 bg-rose-50 text-rose-700 text-[10px] font-bold rounded-full">Pending</span>
+                                    {% else %}
+                                    <span class="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full">Resolved</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    {% if item.status == 'Pending' %}
+                                    <form action="/admin/resolve_complaint/{{ item.complaint_id }}" method="POST" class="inline-block">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg transition-all border border-indigo-200">
+                                            Mark Resolved
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-slate-400 text-[11px] font-medium">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="px-4 py-8 text-center text-slate-400">
+                                    No complaints logged.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- End of view-ledger -->
+    </main>
+
+    <!-- Tab Switching JavaScript -->
+    <script>
+        function switchTab(tab) {
+            const tabAssets = document.getElementById('tab-assets');
+            const tabApprovals = document.getElementById('tab-approvals');
+            const tabLedger = document.getElementById('tab-ledger');
+            
+            const viewAssets = document.getElementById('view-assets');
+            const viewApprovals = document.getElementById('view-approvals');
+            const viewLedger = document.getElementById('view-ledger');
+            
+            const headerTitle = document.getElementById('header-title');
+            const headerDesc = document.getElementById('header-desc');
+
+            // Reset tab styles
+            const activeTabClass = "text-sm font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-7 pt-7 focus:outline-none transition-all";
+            const inactiveTabClass = "text-sm font-medium text-slate-500 hover:text-slate-900 pb-7 pt-7 focus:outline-none transition-all";
+            
+            tabAssets.className = inactiveTabClass;
+            tabApprovals.className = inactiveTabClass;
+            tabLedger.className = inactiveTabClass;
+            
+            // Hide all views
+            viewAssets.classList.add('hidden');
+            viewApprovals.classList.add('hidden');
+            viewLedger.classList.add('hidden');
+
+            if (tab === 'assets') {
+                tabAssets.className = activeTabClass;
+                viewAssets.classList.remove('hidden');
+                headerTitle.innerText = "Asset Registry";
+                headerDesc.innerText = "Manage shared community resources, register new assets, and view daily rent structures.";
+            } else if (tab === 'approvals') {
+                tabApprovals.className = activeTabClass;
+                viewApprovals.classList.remove('hidden');
+                headerTitle.innerText = "Pending Access Approvals";
+                headerDesc.innerText = "Verify and approve self-registered resident accounts to grant community lending privileges.";
+            } else if (tab === 'ledger') {
+                tabLedger.className = activeTabClass;
+                viewLedger.classList.remove('hidden');
+                headerTitle.innerText = "Rental Ledger & Tracking";
+                headerDesc.innerText = "Monitor live active leases, track returned asset history, and inspect calculated resident fines.";
+            }
+        }
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-100 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-slate-500 text-xs">
+            <span>© 2026 Co-Lend Smart Resident Ledger. All rights reserved.</span>
+            <div class="flex gap-4">
+                <a href="#" class="hover:text-slate-800 transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-slate-800 transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

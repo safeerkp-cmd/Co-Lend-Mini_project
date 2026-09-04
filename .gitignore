@@ -1,0 +1,23 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+*.pyd
+*.class
+*.so
+
+# Instance and local database files
+instance/
+*.db
+*.sqlite3
+
+# Test caches and artifacts
+.pytest_cache/
+.coverage
+htmlcov/
