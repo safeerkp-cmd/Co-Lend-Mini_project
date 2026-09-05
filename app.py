@@ -543,9 +543,8 @@ def book_asset(asset_id):
         flash("Error: Lease duration must be between 1 and 30 days.", "error")
         return redirect(url_for('resident_ui'))
     
-    payment_status = request.form.get('payment_status', 'Pending')
-    if payment_status not in ['Paid', 'Pending']:
-        payment_status = 'Pending'
+    # All initial bookings start with Pending payment status (offline settlement managed by admin)
+    payment_status = 'Pending'
     
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
@@ -730,6 +729,31 @@ def pay_fine(fine_id):
     except Exception:
         conn.rollback()
         flash("An error occurred while settling the fine.", "error")
+        
+    cursor.close()
+    conn.close()
+    return redirect(url_for('admin_ui'))
+
+# 10.8. Settle a pending booking rental payment (POST /admin/pay_booking/<int:booking_id>)
+@app.route('/admin/pay_booking/<int:booking_id>', methods=['POST'])
+def pay_booking(booking_id):
+    if not session.get('logged_in') or session.get('role', '').lower() != 'admin':
+        flash("Unauthorized Access: Only administrators can settle rental payments.", "error")
+        return redirect(url_for('index'))
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("UPDATE bookings SET payment_status = 'Paid' WHERE id = %s AND payment_status = 'Pending';", (booking_id,))
+        if cursor.rowcount == 0:
+            flash("Error: Booking record not found or rental payment already settled.", "error")
+        else:
+            conn.commit()
+            flash("Rental payment marked as paid successfully.", "success")
+    except Exception:
+        conn.rollback()
+        flash("An error occurred while settling the rental payment.", "error")
         
     cursor.close()
     conn.close()

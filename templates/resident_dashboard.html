@@ -104,13 +104,22 @@
                                 All
                             </a>
                             <a href="/resident?category=Maintenance Tools" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Maintenance Tools' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
-                                Tools
+                                Maintenance Tools
                             </a>
                             <a href="/resident?category=Furniture" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Furniture' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
                                 Furniture
                             </a>
                             <a href="/resident?category=Electronics" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Electronics' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
                                 Electronics
+                            </a>
+                            <a href="/resident?category=Event Utilities" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Event Utilities' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
+                                Event Utilities
+                            </a>
+                            <a href="/resident?category=Sports%20%26%20Recreation" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Sports & Recreation' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
+                                Sports & Recreation
+                            </a>
+                            <a href="/resident?category=Other" class="px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all {% if selected_category == 'Other' %}bg-slate-900 text-white border-slate-900{% else %}bg-white text-slate-600 border-slate-200 hover:bg-slate-50{% endif %}">
+                                Other
                             </a>
                         </div>
                     </div>
@@ -149,11 +158,10 @@
                                 </div>
                                 
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Payment Option</label>
-                                    <select name="payment_status" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-xs bg-slate-50/50 transition-all text-slate-700">
-                                        <option value="Paid">Pay Now (Online)</option>
-                                        <option value="Pending">Pay Later (Cash)</option>
-                                    </select>
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Payment Method</label>
+                                    <div class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs text-slate-700 font-medium">
+                                        Pay Later (Cash)
+                                    </div>
                                 </div>
                                 <button type="submit" {% if asset.available_qty <= 0 %}disabled{% endif %}
                                     class="w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm {% if asset.available_qty > 0 %}bg-indigo-600 hover:bg-indigo-700 text-white{% else %}bg-slate-100 text-slate-400 cursor-not-allowed{% endif %}">

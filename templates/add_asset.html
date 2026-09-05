@@ -295,8 +295,18 @@
                                 <td class="px-4 py-3 text-center font-bold">{{ item.quantity }}</td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="font-semibold text-slate-900">₹{{ item.total_rental_price }}</div>
-                                    <div class="text-[10px] {% if item.payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
-                                        {{ item.payment_status }}
+                                    <div class="text-[10px] flex items-center justify-end gap-1.5 mt-0.5">
+                                        <span class="{% if item.payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
+                                            {{ item.payment_status }}
+                                        </span>
+                                        {% if item.payment_status == 'Pending' %}
+                                        <form action="/admin/pay_booking/{{ item.booking_id }}" method="POST" class="inline-block">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-md transition-all border border-emerald-200 shadow-sm">
+                                                Mark Paid
+                                            </button>
+                                        </form>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-center font-semibold text-indigo-600">
@@ -360,8 +370,18 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="font-semibold text-slate-900">₹{{ item.total_rental_price }}</div>
-                                    <div class="text-[10px] {% if item.booking_payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
-                                        {{ item.booking_payment_status }}
+                                    <div class="text-[10px] flex items-center justify-end gap-1.5 mt-0.5">
+                                        <span class="{% if item.booking_payment_status == 'Paid' %}text-emerald-600 font-bold{% else %}text-amber-600 font-medium{% endif %}">
+                                            {{ item.booking_payment_status }}
+                                        </span>
+                                        {% if item.booking_payment_status == 'Pending' %}
+                                        <form action="/admin/pay_booking/{{ item.booking_id }}" method="POST" class="inline-block">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="px-2 py-0.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-md transition-all border border-emerald-200 shadow-sm">
+                                                Mark Paid
+                                            </button>
+                                        </form>
+                                        {% endif %}
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 text-right font-semibold text-rose-600">
